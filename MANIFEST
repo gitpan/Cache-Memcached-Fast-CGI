@@ -1,6 +1,6 @@
+Build.PL
 Changes
 MANIFEST
-Makefile.PL
 README
 lib/Cache/Memcached/Fast/CGI.pm
 t/00-load.t

@@ -9,18 +9,18 @@ Cache::Memcached::Fast::CGI - Capture the STDOUT for Memcached in a pure cgi pro
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use Cache::Memcached::Fast;
 use IO::Capture::Stdout;
 
 use Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT = qw(setup get start end auto_end);
+our @EXPORT = qw(setup get add start end auto_end);
 our @EXPORT_ok = qw();
 
 sub new {
@@ -46,12 +46,14 @@ sub setup {
 sub get {
 	my $self = shift;
 	my $key  = shift;
-	my $memhtml = $self->{'cmf'}->get($key);
+	my $value = $self->{'cmf'}->get($key);
+	return $value;
 }
 
 sub add {
 	my $self = shift;
-	my $memhtml = $self->{'cmf'}->add(@_);
+	$self->{'cmf'}->add(@_);
+	return 1;
 }
 
 
@@ -71,9 +73,10 @@ sub end {
 sub auto_end {
 	my $self = shift;
 	my $key  = shift;
+	my $time  = shift;
 	$self->{'ics'} -> stop();
 	my $re = join '',$self->{'ics'}->read();
-	$self->{'cmf'}->add($key,$re,@_);
+	$self->{'cmf'}->add($key,$re,$time);
 	print $re;
 }
 
@@ -82,21 +85,19 @@ sub auto_end {
 
 	use Cache::Memcached::Fast::CGI;
 
-	my $cmfc = Cache::Memcached::Fast::CGI->new(
-    	{
-        	servers         => ['localhost:11211'],
-        	connect_timeout => 0.3
-        	## ...
-    	}
-	);
+	my $cmfc = Cache::Memcached::Fast::CGI->new({
+		servers         => ['localhost:11211'],
+		connect_timeout => 0.3
+		## ...
+    });
 
 	my $key = $ENV{'SCRIPT_FILENAME'}.'?'.$ENV{'QUERY_STRING'};
 
 	## Retrieve values
-	my $flag = $cmfc->get($key);
-	print $flag and exit if $flag;
+	my $value = $cmfc->get($key);
+	print $value and exit if $value;
 
-	## Capture is start
+	## Start capture
 	$cmfc->start();
 
 	print "Content-type: text/html;charset=utf-8\n\n";
@@ -106,8 +107,8 @@ sub auto_end {
 	print "hello world -- 2<br>";
 	print "</body></html>";
 
-	## Capture is end
-	$cmfc->auto_end();
+	## Automatic end of the capture
+	$cmfc->auto_end($key);
 
 	exit;
 
@@ -117,16 +118,21 @@ sub auto_end {
 =head2 add
 	
 	# Add the key and valuse into memcahced
-	$cmfc->add($key,$captured);
+	$cmfc->add($key,$value,$time);
 
 =head2 end
 
-	## Capture is end
+	## End capture
 	my $captured = $cmfc->end();
+	
+=head3 auto_end
+
+	## Automatic end of the capture
+	$cmfc->auto_end($key,$time);
 
 =head1 AUTHOR
 
-=Hitsu Bunnu, C<< <hitsubunnu at gmail.com> >>
+=HITSU, C<< <hitsubunnu at gmail.com> >>
 
 =head1 BUGS
 
