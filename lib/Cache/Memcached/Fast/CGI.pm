@@ -9,11 +9,11 @@ Cache::Memcached::Fast::CGI - Capture the STDOUT for Memcached in a pure cgi pro
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use Cache::Memcached::Fast;
 use IO::Capture::Stdout;
@@ -56,7 +56,6 @@ sub add {
 	return 1;
 }
 
-
 sub start {
 	my $self = shift;
 	$self->{'ics'} -> start();
@@ -68,7 +67,6 @@ sub end {
 	my $re = join '',$self->{'ics'}->read();
 	return $re;
 }
-
 
 sub auto_end {
 	my $self = shift;
@@ -89,7 +87,7 @@ sub auto_end {
 		servers         => ['localhost:11211'],
 		connect_timeout => 0.3
 		## ...
-    });
+	});
 
 	my $key = $ENV{'SCRIPT_FILENAME'}.'?'.$ENV{'QUERY_STRING'};
 
