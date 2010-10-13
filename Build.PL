@@ -9,6 +9,8 @@ my $builder = Module::Build->new(
     dist_version_from   => 'lib/Cache/Memcached/Fast/CGI.pm',
     build_requires => {
         'Test::More' => 0,
+        'Cache::Memcached::Fast' => 0,
+        'IO::Capture::Stdout' => 0,
     },
     add_to_cleanup      => [ 'Cache-Memcached-Fast-CGI-*' ],
     create_makefile_pl => 'traditional',
